@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <stdlib.h>
+#include "display.h"
 
 
 uint8_t mem[4096]; // starting address is 0x200
@@ -6,17 +8,18 @@ uint8_t V[16]; // general purpose registers
 uint16_t PC; // program counter stores address
 uint16_t I; // index register
 uint8_t disp[64 * 32]; // display
-uint16_t stck[16]; // 16 nested subroutine calls
+uint16_t stck[16]; // stack for 16 nested subroutine calls
 uint8_t SP; // stack pointer
 uint8_t dTimer; // delay timer
 uint8_t sTimer; // sound timer
-uint16_t opcode;
+uint16_t opcode; // opcode
 
 
 int main(void) {
+  initDisplay();
   PC = 0x200;
   SP = 0;
-  while (1) {
+  while (!WindowShouldClose()) {
     opcode = (mem[PC] << 8 | mem[PC + 1]);
     PC += 2;
     uint8_t T = (opcode & 0xF000) >> 12; // first nibble
@@ -37,6 +40,7 @@ int main(void) {
       break;
     
     case (0x2):
+      // HANDLE STACK OVERFLOW
       stck[SP] = PC;
       SP += 1;
       PC = NNN;
@@ -107,5 +111,8 @@ int main(void) {
     default:
       break;
     }
+    drawDisplay();
   }
+  closeDisplay();
+  return 0;
 }
