@@ -1,19 +1,26 @@
 #include "raylib.h"
+#include "chip8.h"
 
-const int windowW = 640;
-const int windowH = 360;
+const int windowWIDTH = 640;
+const int windowHEIGHT = 360;
+const int SCALE = 10;
+const Color AMBER = { 255, 191, 0, 255 };
 
-int initDisplay (void) {
-    InitWindow(windowW, windowH, "C-8");
-    return 0;
+void initDisplay (void) {
+    InitWindow(windowWIDTH, windowHEIGHT, "C-8");
 }
-int drawDisplay (void) {
+void drawDisplay (void) {
     BeginDrawing();
     ClearBackground(BLACK);
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (disp[y * WIDTH + x]) {
+                DrawRectangle(x * SCALE, y * SCALE, SCALE, SCALE, AMBER);
+            }
+        }
+    }
     EndDrawing();
-    return 0;
 }
-int closeDisplay (void) {
+void closeDisplay (void) {
     CloseWindow();
-    return 0;
 }

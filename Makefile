@@ -1,5 +1,5 @@
 CC = gcc
-SRC = src/c-8.c src/display.c
+SRC = src/chip8.c src/display.c
 OUT = C-8.exe
 
 all:

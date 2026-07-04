@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "display.h"
+#include "chip8.h"
 
 
 uint8_t mem[4096]; // starting address is 0x200
 uint8_t V[16]; // general purpose registers
 uint16_t PC; // program counter stores address
 uint16_t I; // index register
-uint8_t disp[64 * 32]; // display
+uint8_t disp[WIDTH * HEIGHT]; // display
 uint16_t stck[16]; // stack for 16 nested subroutine calls
 uint8_t SP; // stack pointer
 uint8_t dTimer; // delay timer
@@ -158,9 +159,28 @@ void chip8Cycle(void) {
       break;
     } // keep R contained
     
-    case (0xD):
-      // SET UP GRAPHICS
+    case (0xD): {
+      V[0xF] = 0;
+      int x = V[X];
+      int y = V[Y];
+      for (int row = 0; row < N; row++) {
+        //int correctedY = (y + row) % height; // wrap around for SCHIP
+        uint8_t spriteByte = mem[I + row]; // extract drawing byte
+        for (int col = 0; col < 8; col++) {
+          //int correctedX = (x + col) % WIDTH; // wraps around
+          int bit = (spriteByte >> (7 - col)) & 1; // isolate one bit
+          if (!bit) continue; // skip if 0
+          //int index = (correctedY) * WIDTH + (correctedX); // wrap around for SCHIP
+          if ((x + col) >= WIDTH || (y + row) >= HEIGHT) continue; // bounds check
+          int index = (y + row) * WIDTH + (x + col);
+          if (disp[index] == 1 && bit == 1) {
+            V[0xF] = 1; // collision flag
+          }
+          disp[index] ^= bit; // XOR
+        }
+      }
       break;
+    }
 
     case (0xE):
       // SET UP KEYS
