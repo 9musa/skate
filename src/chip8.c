@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "display.h"
 #include "chip8.h"
@@ -12,13 +13,41 @@ uint16_t I; // index register
 uint8_t disp[WIDTH * HEIGHT]; // display
 uint16_t stck[16]; // stack for 16 nested subroutine calls
 uint8_t SP; // stack pointer
+uint8_t keypad[16];
+int keyMap[16] = {
+  KEY_X,    // 0
+  KEY_ONE,  // 1
+  KEY_TWO,  // 2
+  KEY_THREE,// 3
+  KEY_Q,    // 4
+  KEY_W,    // 5
+  KEY_E,    // 6
+  KEY_A,    // 7
+  KEY_S,    // 8
+  KEY_D,    // 9
+  KEY_Z,    // A
+  KEY_C,    // B
+  KEY_FOUR, // C
+  KEY_R,    // D
+  KEY_F,    // E
+  KEY_V     // F
+};
 uint8_t dTimer; // delay timer
 uint8_t sTimer; // sound timer
 uint16_t opcode; // opcode
+AppState state = STATE_MENU;
 
 void initChip8(void) {
   PC = 0x200;
   SP = 0;
+}
+void loadROM(const char *path) {
+  FILE *f = fopen(path, "rb");
+  if (f == NULL) {
+    return;
+  }
+  fread(&mem[0x200], 1, 4096 - 0x200, f);
+  fclose(f);
 }
 void chip8Cycle(void) {
   opcode = (mem[PC] << 8 | mem[PC + 1]);
@@ -183,11 +212,66 @@ void chip8Cycle(void) {
     }
 
     case (0xE):
-      // SET UP KEYS
-      break;
+      switch (NN) {
+        case (0x9E):
+          if (keypad[V[X]]) {
+            PC += 2;
+          }
+          break;
+        
+        case (0xA1):
+          if (!keypad[V[X]]) {
+            PC += 2;
+          }
+          break;
+      }
 
     case (0xF):
-      // NEST LATER
+      switch (NN) {
+        case (0x07):
+          V[X] = dTimer;
+          break;
+        case (0x0A):
+          int keyPressed = 0;
+          for (int i = 0; i < 16; i++) {
+            if (keypad[i]) {
+              V[X] = i;
+              keyPressed = 1;
+              break;
+            }
+          }
+          if (!keyPressed) {
+            PC -= 2;
+          }
+          break;
+        case (0x15):
+          dTimer = V[X];
+          break;
+        case (0x18):
+          sTimer = V[X];
+          break;
+        case (0x1E):
+          I += V[X];
+          break;
+        case (0x29):
+          I = 0x50 + V[X] * 5;
+          break;
+        case (0x33):
+          mem[I] = V[X] / 100;
+          mem[I + 1] = (V[X] / 10) % 10;
+          mem[I + 2] = V[X] % 10;
+          break;
+        case (0x55):
+          for (int i = 0; i <= X; i++) {
+            mem[I + i] = V[i];
+          }
+          break;
+        case (0x65):
+          for (int i = 0; i <= X; i++) {
+            V[i] = mem[I + i];
+          }
+          break;
+      }
       break;
       
     default:
@@ -199,9 +283,18 @@ void chip8Cycle(void) {
 int main(void) {
   initChip8();
   initDisplay();
+  scanFolder();
   while (!WindowShouldClose()) {
-    chip8Cycle();
-    drawDisplay();
+    switch (state) {
+      case STATE_MENU:
+        updateMenu();
+        drawMenu();
+        break;
+      case STATE_RUNNING:
+        chip8Cycle();
+        drawDisplay();
+        break;
+    }
   }
   closeDisplay();
   return 0;
