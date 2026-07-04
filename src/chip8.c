@@ -15,7 +15,6 @@ uint16_t stck[16]; // stack for 16 nested subroutine calls
 uint8_t SP; // stack pointer
 uint8_t keypad[16];
 int keyMap[16] = {
-  KEY_X,    // 0
   KEY_ONE,  // 1
   KEY_TWO,  // 2
   KEY_THREE,// 3
@@ -26,6 +25,7 @@ int keyMap[16] = {
   KEY_S,    // 8
   KEY_D,    // 9
   KEY_Z,    // A
+  KEY_X,    // 0
   KEY_C,    // B
   KEY_FOUR, // C
   KEY_R,    // D
@@ -38,10 +38,18 @@ uint16_t opcode; // opcode
 AppState state = STATE_MENU;
 
 void initChip8(void) {
+  memset(mem, 0, sizeof(mem));
+  memset(V, 0, sizeof(V));
+  I = 0;
+  memset(stck, 0, sizeof(stck));
+  dTimer = 0;
+  sTimer = 0;
   PC = 0x200;
   SP = 0;
+  memset(disp, 0, sizeof(disp));
 }
 void loadROM(const char *path) {
+  initChip8();
   FILE *f = fopen(path, "rb");
   if (f == NULL) {
     return;
@@ -134,35 +142,32 @@ void chip8Cycle(void) {
           break;
         }
         case (0x5): { // VF = 0 on borrow
-          uint8_t diff = V[X] - V[Y];
-          if (V[X] >= V[Y]) {
-            V[0xF] = 1;
-          }
-          else {
-            V[0xF] = 0;
-          }
+          uint8_t vx = V[X];
+          uint8_t vy = V[Y];
+          uint8_t diff = vx - vy;
+          uint8_t vf = (vx >= vy);
           V[X] = diff;
+          V[0xF] = vf;
           break;
         }
         case (0x6): // VF = old LSB
-          V[0xF] = V[X] & (0x01);
-          V[X] >>= 1;
+          uint8_t lsb = V[Y] & (0x01);
+          V[X] = V[Y] >> 1;
+          V[0xF] = lsb;
           break;
         case (0x7): { // VF = 0 on borrow
-          uint8_t diff = V[Y] - V[X];
-          if (V[Y] >= V[X]) {
-            V[0xF] = 1;
-          }
-          else {
-            V[0xF] = 0;
-          }
+          uint8_t vx = V[X];
+          uint8_t vy = V[Y];
+          uint8_t diff = vy - vx;
+          uint8_t vf = (vy >= vx);
           V[X] = diff;
+          V[0xF] = vf;
           break;
         }
         case (0xE): // VF = old MSB
-          V[0xF] = V[X] & (0x80);
-          V[0xF] >>= 7;
+          uint8_t msb = (V[Y] & (0x80)) >> 7;
           V[X] <<= 1;
+          V[0xF] = msb;
           break;
       }
       break;
@@ -283,8 +288,17 @@ void chip8Cycle(void) {
 int main(void) {
   initChip8();
   initDisplay();
+  SetExitKey(KEY_NULL);
   scanFolder();
   while (!WindowShouldClose()) {
+    if (IsKeyPressed(KEY_ESCAPE)) {
+      if (state == STATE_RUNNING) {
+        state = STATE_MENU;
+      }
+      else if (state == STATE_MENU) {
+        break;
+      }
+    }
     switch (state) {
       case STATE_MENU:
         updateMenu();

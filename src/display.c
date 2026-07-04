@@ -48,7 +48,15 @@ void drawMenu (void) {
     titleTextSize = MeasureTextEx(FONT, "C-8", 60, 2);
     footerSize = MeasureTextEx(FONT, footer, 20, 1);
     DrawTextEx(FONT, "C-8", (Vector2){ (windowWIDTH / 2) - (titleTextSize.x / 2) , 40 }, 60, 2, AMBER);
-    for (int i = 0; i < romCount; i++) {
+    int startIndex = 0;
+    if (selectedRom >= 9) {
+        startIndex = selectedRom - 8; // Keeps the selected item at the bottom of the view
+    }
+    int endIndex = startIndex + 9;
+    if (endIndex > romCount) {
+        endIndex = romCount;
+    }
+    for (int i = startIndex; i < endIndex; i++) {
         const char* displayText;
         if (i == selectedRom) {
             displayText = TextFormat("> %s", roms[i]);
@@ -57,7 +65,8 @@ void drawMenu (void) {
             displayText = roms[i];
         }
         listTextSize = MeasureTextEx(FONT, displayText, 30, 2);
-        DrawTextEx(FONT, displayText, (Vector2){ (windowWIDTH / 2) - (listTextSize.x / 2) , (140 + (i * 20)) }, 30, 2, AMBER);
+        int relativeRow = i - startIndex;
+        DrawTextEx(FONT, displayText, (Vector2){ (windowWIDTH / 2) - (listTextSize.x / 2) , (140 + (relativeRow * 20)) }, 30, 2, AMBER);
     }
     DrawTextEx(FONT, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
     EndDrawing();
@@ -73,6 +82,9 @@ void updateMenu (void) {
         loadROM(romPaths[selectedRom]);
         state = STATE_RUNNING;
     }
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        state = STATE_MENU;
+    }
 }
 void drawDisplay (void) {
     BeginDrawing();
@@ -86,7 +98,6 @@ void drawDisplay (void) {
         }
     }
     DrawTextEx(FONT, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
-    // need to add small footer under ts too
     EndDrawing();
 }
 void closeDisplay (void) {
