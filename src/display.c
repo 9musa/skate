@@ -9,7 +9,7 @@ const char *footer = u8"© 2026 Benevolence Labs";
 char **roms = NULL; // rom names
 char **romPaths = NULL; // rom paths
 int romCount = 0; // no of elements = size of list / size of one element
-int selectedRom = 0;
+int selectedRom = 0; // highlighted
 const int windowWIDTH = 1280;
 const int windowHEIGHT = 680;
 const int SCALE = 10;
@@ -21,7 +21,8 @@ Font footerFont;
 Vector2 titleTextSize;
 Vector2 listTextSize;
 Vector2 footerSize;
-int codepoints[224];
+int codepoints[224]; // ©
+
 
 void initDisplay (void) {
     InitWindow(windowWIDTH, windowHEIGHT, "SC-8");
@@ -34,6 +35,7 @@ void initDisplay (void) {
     listFont = LoadFontEx("assets/Michroma-Regular.ttf", 30, NULL, 0);
     footerFont = LoadFontEx("assets/Michroma-Regular.ttf", 20, codepoints, 224);
 }
+
 void scanFolder (void) {
     FilePathList files = LoadDirectoryFiles("roms"); // scans directory
     roms = malloc(files.count * sizeof(char*)); // allocates memory to roms
@@ -50,6 +52,7 @@ void scanFolder (void) {
     }
     UnloadDirectoryFiles(files); // cleanup
 }
+
 void drawMenu (void) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -79,6 +82,7 @@ void drawMenu (void) {
     DrawTextEx(footerFont, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
     EndDrawing();
 }
+
 void updateMenu (void) {
     if (IsKeyPressed(KEY_UP) && selectedRom > 0) {
         selectedRom--;
@@ -94,6 +98,7 @@ void updateMenu (void) {
         state = STATE_MENU;
     }
 }
+
 void drawDisplay (void) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -111,6 +116,7 @@ void drawDisplay (void) {
     DrawTextEx(footerFont, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
     EndDrawing();
 }
+
 void closeDisplay (void) {
     UnloadFont(titleFont);
     UnloadFont(listFont);
