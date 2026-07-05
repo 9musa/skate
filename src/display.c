@@ -10,21 +10,29 @@ char **roms = NULL; // rom names
 char **romPaths = NULL; // rom paths
 int romCount = 0; // no of elements = size of list / size of one element
 int selectedRom = 0;
-const int windowWIDTH = 640;
-const int windowHEIGHT = 360;
+const int windowWIDTH = 1280;
+const int windowHEIGHT = 680;
 const int SCALE = 10;
+Image icon;
 const Color AMBER = { 255, 191, 0, 255 };
-Font FONT;
+Font titleFont;
+Font listFont;
+Font footerFont;
 Vector2 titleTextSize;
 Vector2 listTextSize;
 Vector2 footerSize;
 int codepoints[224];
 
 void initDisplay (void) {
-    InitWindow(windowWIDTH, windowHEIGHT, "C-8");
+    InitWindow(windowWIDTH, windowHEIGHT, "SC-8");
     for (int i = 0; i < 224; i++)
         codepoints[i] = 32 + i;
-    FONT = LoadFontEx("assets/Michroma-Regular.ttf", 60, codepoints, 224);
+    icon = LoadImage("assets/SC-8.png");
+    SetWindowIcon(icon);
+    UnloadImage(icon);
+    titleFont = LoadFontEx("assets/Michroma-Regular.ttf", 80, NULL, 0);
+    listFont = LoadFontEx("assets/Michroma-Regular.ttf", 30, NULL, 0);
+    footerFont = LoadFontEx("assets/Michroma-Regular.ttf", 20, codepoints, 224);
 }
 void scanFolder (void) {
     FilePathList files = LoadDirectoryFiles("roms"); // scans directory
@@ -45,14 +53,14 @@ void scanFolder (void) {
 void drawMenu (void) {
     BeginDrawing();
     ClearBackground(BLACK);
-    titleTextSize = MeasureTextEx(FONT, "C-8", 60, 2);
-    footerSize = MeasureTextEx(FONT, footer, 20, 1);
-    DrawTextEx(FONT, "C-8", (Vector2){ (windowWIDTH / 2) - (titleTextSize.x / 2) , 40 }, 60, 2, AMBER);
+    titleTextSize = MeasureTextEx(titleFont, "SC-8", 80, 2);
+    footerSize = MeasureTextEx(footerFont, footer, 20, 1);
+    DrawTextEx(titleFont, "SC-8", (Vector2){ (windowWIDTH / 2) - (titleTextSize.x / 2) , 40 }, 80, 2, AMBER);
     int startIndex = 0;
-    if (selectedRom >= 9) {
-        startIndex = selectedRom - 8; // Keeps the selected item at the bottom of the view
+    if (selectedRom >= 20) {
+        startIndex = selectedRom - 19; // Keeps the selected item at the bottom of the view
     }
-    int endIndex = startIndex + 9;
+    int endIndex = startIndex + 20;
     if (endIndex > romCount) {
         endIndex = romCount;
     }
@@ -64,11 +72,11 @@ void drawMenu (void) {
         else {
             displayText = roms[i];
         }
-        listTextSize = MeasureTextEx(FONT, displayText, 30, 2);
+        listTextSize = MeasureTextEx(listFont, displayText, 30, 2);
         int relativeRow = i - startIndex;
-        DrawTextEx(FONT, displayText, (Vector2){ (windowWIDTH / 2) - (listTextSize.x / 2) , (140 + (relativeRow * 20)) }, 30, 2, AMBER);
+        DrawTextEx(listFont, displayText, (Vector2){ (windowWIDTH / 2) - (listTextSize.x / 2) , (200 + (relativeRow * 20)) }, 30, 2, AMBER);
     }
-    DrawTextEx(FONT, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
+    DrawTextEx(footerFont, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
     EndDrawing();
 }
 void updateMenu (void) {
@@ -89,18 +97,23 @@ void updateMenu (void) {
 void drawDisplay (void) {
     BeginDrawing();
     ClearBackground(BLACK);
-    footerSize = MeasureTextEx(FONT, footer, 20, 1);
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            if (disp[y * WIDTH + x]) {
-                DrawRectangle(x * SCALE, y * SCALE, SCALE, SCALE, AMBER);
+    footerSize = MeasureTextEx(footerFont, footer, 20, 1);
+    int currentWidth  = highResMode ? 128 : 64;
+    int currentHeight = highResMode ? 64  : 32;
+    int currentScale  = highResMode ? SCALE : (SCALE * 2);
+    for (int y = 0; y < currentHeight; y++) {
+        for (int x = 0; x < currentWidth; x++) {
+            if (disp[y * 128 + x]) {
+                DrawRectangle(x * currentScale, y * currentScale, currentScale, currentScale, AMBER);
             }
         }
     }
-    DrawTextEx(FONT, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
+    DrawTextEx(footerFont, footer, (Vector2){ windowWIDTH - footerSize.x - 10, windowHEIGHT - footerSize.y - 8 }, 20, 1, DARKGRAY);
     EndDrawing();
 }
 void closeDisplay (void) {
-    UnloadFont(FONT);
+    UnloadFont(titleFont);
+    UnloadFont(listFont);
+    UnloadFont(footerFont);
     CloseWindow();
 }

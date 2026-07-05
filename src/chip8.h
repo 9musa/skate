@@ -1,6 +1,7 @@
-#define WIDTH 64
-#define HEIGHT 32
+#define WIDTH 128
+#define HEIGHT 64
 #include <stdint.h>
+#include <stdbool.h>
 
 
 void loadROM(const char *path);
@@ -16,5 +17,6 @@ extern uint8_t dTimer;
 extern uint8_t sTimer;
 extern uint16_t opcode;
 extern uint8_t disp[WIDTH * HEIGHT];
+extern bool highResMode;
 typedef enum { STATE_MENU, STATE_RUNNING } AppState;
 extern AppState state;

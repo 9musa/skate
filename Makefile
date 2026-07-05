@@ -1,6 +1,6 @@
 CC = gcc
 SRC = src/chip8.c src/display.c
-OUT = C-8.exe
+OUT = Skate.exe
 PROJECT_RESOURCE_FILE = resource.rc
 RES_OBJ = resource.o
 
