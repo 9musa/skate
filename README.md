@@ -11,6 +11,7 @@ Skate is a Modern SUPER-CHIP emulator written in C, with backward compatability 
 ## Preview
 ![SC-8](assets/screenshots/screenshot1.png)
 ![SC-8](assets/screenshots/screenshot2.png)
+![SC-8](assets/screenshots/screenshot3.png)
 
 ## Features
 - Accurate CHIP-8 and Modern SUPER-CHIP emulation
@@ -56,12 +57,12 @@ Clone this repository to your local machine:
    make
    ```
 
-## Authors
-Developed by [9musa](https://github.com/9musa) under Benevolence Labs.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgements
 - [Timendus' CHIP-8 Test Suite](https://github.com/Timendus/chip8-test-suite) for the compatibility test ROMs used for identifying subtle implementation bugs and ensuring accurate Modern SUPER-CHIP emulation.
 - [Gulrak's CHIP-8 Documentation](https://chip8kb.gulrak.net/) for the comprehensive knowledge of the CHIP-8 and its variants.
+
+## Authors
+Developed by [9musa](https://github.com/9musa) under Verelous Labs.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

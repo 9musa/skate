@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 
-const char *footer = u8"© 2026 Benevolence Labs";
+const char *footer = u8"© 2026 Verelous Labs";
 char **roms = NULL; // rom names
 char **romPaths = NULL; // rom paths
 int romCount = 0; // no of elements = size of list / size of one element
