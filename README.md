@@ -9,8 +9,8 @@ A SUPER-CHIP emulator.
 Skate is a Modern SUPER-CHIP emulator written in C, with backward compatability for CHIP-8 games. It comes loaded with 30+ ROMs, including 8 for testing.
 
 ## Preview
-![SC-8](assets/screenshot1.png)
-![SC-8](assets/screenshot2.png)
+![SC-8](assets/screenshots/screenshot1.png)
+![SC-8](assets/screenshots/screenshot2.png)
 
 ## Features
 - Accurate CHIP-8 and Modern SUPER-CHIP emulation

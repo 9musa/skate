@@ -28,12 +28,12 @@ void initDisplay (void) {
     InitWindow(windowWIDTH, windowHEIGHT, "SC-8");
     for (int i = 0; i < 224; i++)
         codepoints[i] = 32 + i;
-    icon = LoadImage("assets/SC-8.png");
+    icon = LoadImage("assets/logo.png");
     SetWindowIcon(icon);
     UnloadImage(icon);
-    titleFont = LoadFontEx("assets/Michroma-Regular.ttf", 80, NULL, 0);
-    listFont = LoadFontEx("assets/Michroma-Regular.ttf", 30, NULL, 0);
-    footerFont = LoadFontEx("assets/Michroma-Regular.ttf", 20, codepoints, 224);
+    titleFont = LoadFontEx("assets/fonts/Michroma-Regular.ttf", 80, NULL, 0);
+    listFont = LoadFontEx("assets/fonts/Michroma-Regular.ttf", 30, NULL, 0);
+    footerFont = LoadFontEx("assets/fonts/Michroma-Regular.ttf", 20, codepoints, 224);
 }
 
 void scanFolder (void) {
