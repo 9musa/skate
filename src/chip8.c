@@ -115,8 +115,14 @@ void insCycle(void) {
           break;
         }
         case (0xEE): { // RTRN SUBROUTINE
+          if (SP == 0) {
+            // STACK UNDERFLOW
+            closeDisplay();
+            // potentially add windows err box
+          } else {
           SP -= 1;
           PC = stck[SP];
+          }
           break;
         }
         case (0xFE): { // OFF HI-RES CLR SCREEN
@@ -170,10 +176,16 @@ void insCycle(void) {
       break;
     
     case (0x2): // CALL ADDRESS
-      // HANDLE STACK OVERFLOW
-      stck[SP] = PC;
-      SP += 1;
-      PC = NNN;
+      // STACK OVERFLOW
+      if (SP >= 16) {
+        // OVERFLOW
+        closeDisplay();
+        // potentially add windows error box later
+      } else {
+        stck[SP] = PC;
+        SP += 1;
+        PC = NNN;
+      }
       break;
     
     case (0x3): // SKIP IF EQUAL
@@ -222,8 +234,7 @@ void insCycle(void) {
           V[X] = sum;
           if (sum > 0xFF) {
             V[0xF] = 1;
-          }
-          else {
+          } else {
             V[0xF] = 0;
           }
           break;
@@ -299,8 +310,7 @@ void insCycle(void) {
             int byteOffset = col / 8; // 0 for first byte, 1 for sec byte
             uint8_t spriteByte = mem[I + (row * 2) + byteOffset]; // 2 rows and skip
             bit = (spriteByte >> (7 - (col % 8))) & 1;
-          }
-          else { // standard read
+          } else { // standard read
             uint8_t spriteByte = mem[I + row]; // 1 row and skip
             bit = (spriteByte >> (7 - col)) & 1; // left to right
           }
@@ -419,8 +429,7 @@ int main(void) {
       if (!IsSoundPlaying(beep)) {
         PlaySound(beep);
       }
-    }
-    else {
+    } else {
       if (IsSoundPlaying(beep)) {
         StopSound(beep);
       }
@@ -430,8 +439,7 @@ int main(void) {
     if (IsKeyPressed(KEY_ESCAPE)) {
       if (state == STATE_RUNNING) {
         state = STATE_MENU;
-      }
-      else if (state == STATE_MENU) {
+      } else if (state == STATE_MENU) {
         break;
       }
     }

@@ -71,8 +71,7 @@ void drawMenu (void) {
         const char* displayText;
         if (i == selectedRom) {
             displayText = TextFormat("> %s", roms[i]);
-        }
-        else {
+        } else {
             displayText = roms[i];
         }
         listTextSize = MeasureTextEx(listFont, displayText, 30, 2);
