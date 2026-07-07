@@ -57,6 +57,33 @@ Clone this repository to your local machine:
    make
    ```
 
+### Controls
+#### Menu
+| Key | Action |
+|-----|--------|
+| ↑ / ↓ | Navigate between ROMs |
+| Enter | Launch selected ROM |
+| Esc | Exit current ROM / close emulator |
+#### CHIP-8 Keypad Mapping
+| CHIP-8 | Keyboard |
+|--------|----------|
+| 1 | 1 |
+| 2 | 2 |
+| 3 | 3 |
+| C | 4 |
+| 4 | Q |
+| 5 | W |
+| 6 | E |
+| D | R |
+| 7 | A |
+| 8 | S |
+| 9 | D |
+| E | F |
+| A | Z |
+| 0 | X |
+| B | C |
+| F | V |
+
 ## Acknowledgements
 - [Timendus' CHIP-8 Test Suite](https://github.com/Timendus/chip8-test-suite) for the compatibility test ROMs used for identifying subtle implementation bugs and ensuring accurate Modern SUPER-CHIP emulation.
 - [Gulrak's CHIP-8 Documentation](https://chip8kb.gulrak.net/) for the comprehensive knowledge of the CHIP-8 and its variants.
@@ -65,4 +92,4 @@ Clone this repository to your local machine:
 Developed by [9musa](https://github.com/9musa) under Verelous Labs.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Skate is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
