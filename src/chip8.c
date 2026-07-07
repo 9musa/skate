@@ -155,6 +155,11 @@ void insCycle(void) {
           }
           break;
         }
+
+        case (0xFD): // EXIT
+         closeDisplay();
+         break;
+        
         default: // SCROLL DOWN
           if ((NN & 0xF0) == 0xC0) {
             int numPixels = (opcode & 0xF);
@@ -166,6 +171,9 @@ void insCycle(void) {
             for (int y = 0; y < numPixels; y++) {
               memset(&disp[y * 128], 0, width);
             }
+          } else {
+            // INVALID OPCODE
+            break;
           }
           break;
       }
@@ -201,7 +209,11 @@ void insCycle(void) {
       break;
     
     case (0x5): // SKIP IF Vx EQUAL Vy
-      // ADD CHECK FOR LAST NIBBLE
+      // CHECK FOR LAST NIBBLE
+      if (N != 0) {
+        // INVALID OPCODE
+        break;
+      }
       if (V[X] == V[Y]) {
         PC += 2;
       }
@@ -271,7 +283,11 @@ void insCycle(void) {
       break;
 
     case (0x9): // SKIP IF NOT EQUAL
-      // ADD CHECK FOR LAST NIBBLE
+      // CHECK FOR LAST NIBBLE
+      if (N != 0) {
+        // INVALID OPCODE
+        break;
+      }
       if (V[X] != V[Y]) {
         PC += 2;
       }
@@ -328,15 +344,19 @@ void insCycle(void) {
     case (0xE): // KEYPAD
       switch (NN) {
         case (0x9E):
-          if (keypad[V[X]]) {
+          if (keypad[V[X]] & 0x0F) {
             PC += 2;
           }
           break;
         
         case (0xA1):
-          if (!keypad[V[X]]) {
+          if (!keypad[V[X] & 0x0F]) {
             PC += 2;
           }
+          break;
+        
+        default:
+          // INVALID OPCODE
           break;
       }
       break;
@@ -346,19 +366,30 @@ void insCycle(void) {
         case (0x07): // SET REGISTER TO DELAY
           V[X] = dTimer;
           break;
-        case (0x0A): // SET REGISTER IF KEY PRESSED
-          int keyPressed = 0;
+        case (0x0A): { // SET REGISTER IF KEY PRESSED AND RELEASED
+          static int heldKey = -1; // tracks index across frames
+          int pressedKey = -1; // holds key num
           for (int i = 0; i < 16; i++) {
             if (keypad[i]) {
-              V[X] = i;
-              keyPressed = 1;
+              pressedKey = i;
               break;
             }
           }
-          if (!keyPressed) { // SKIP IF NOT
-            PC -= 2;
+          if (heldKey == -1) { // waiting for initial key press
+            if (pressedKey != -1) {
+              heldKey = pressedKey; // catch it
+            }
+            PC -= 2; // rewind
+          } else { // already caught a key press in previous frame
+            if (keypad[heldKey]) {
+              PC -= 2; // still held down, await
+            } else {
+              V[X] = heldKey; // released, set register
+              heldKey = -1; // reinitialise
+            }
           }
           break;
+        }
         case (0x15): // SET DELAY
           dTimer = V[X];
           break;
@@ -368,11 +399,12 @@ void insCycle(void) {
         case (0x1E): // INCREMENT INDEX
           I += V[X];
           break;
+        // MASK BECAUSE FONT CONTAIN A MAXIMUM OF 10 ELEMENTS
         case (0x29): // POINT INDEX TO LOW-RES FONT
-          I = V[X] * 5;
+          I = (V[X] & 0x0F) * 5;
           break;
         case (0x30): // POINT INDEX TO HIGH-RES FONT
-          I = 80 + (V[X] * 10);
+          I = 80 + ((V[X] & 0x0F) * 10);
           break;
         case (0x33): // BINARY CODE DECIMAL
           mem[I] = V[X] / 100;
@@ -389,9 +421,9 @@ void insCycle(void) {
             V[i] = mem[I + i];
           }
           break;
-        case (0xFD): // EXIT
-         closeDisplay();
-         break;
+        default:
+          // INVALID OPCODE
+          break;
       }
       break;
       
